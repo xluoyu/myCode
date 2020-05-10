@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  *{margin: 0;padding: 0;}
+  #capsuleIpt{
+    width: 300px;
+    height: 400px;
+    border: 1px solid #bbb;
+    margin: 50px;
+    display: flex;
+    flex-direction: column;
+  }
+  .textarea{
+    flex-grow: 1;
+    border: none;
+    resize: none;
+    outline: none;
+    font-size: 14px;
+    line-height: 32px;
+    margin: 0 6px;
+    box-sizing: border-box;
+  }
+  .has_chunk{
+    margin-top: -32px;
+    text-indent: 132px;
+  }
+  .chunk{
+    width: fit-content;
+    position: relative;
+    z-index: 2;
+    white-space: nowrap;
+  }
+  .tag{
+    display: inline-block;
+    background: skyblue;
+    padding: 1px 0;
+    border-radius: 20px;
+    color: #eee;
+    line-height: 20px;
+    font-size: 14px;
+    margin: 5px;
+  }
+  .tag span{
+    padding: 0 5px;
+  }
+  .tag b{
+    color: #333;
+    border-left: 1px solid #ccc;
+    padding: 0 6px;
+    cursor: pointer;
+  }
+</style>
+<body>
+  <div id="capsuleIpt">
+    <div class="capsules complete"></div>
+    <div class="capsules chunk"></div>
+    <textarea class="textarea" autofocus cols="30" rows="10"></textarea>
+  </div>
+  <div id="btn">点我</div>
+</body>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+  /**
+   * 胶囊型标签 + textarea
+   */
+  class CapsuleIpt {
+    constructor(options){
+      this.$el = options.el
+      this.minTagWidth = options.minTagWidth
+      this.capsules = []
+      this.init()
+    }
+    init () {
+      if (!this.$el) throw '请绑定el'
+      this.$parent = document.querySelector(this.$el)
+      if (!this.$parent) throw '请绑定正确的el'
+      this.$textarea = this.$parent.querySelector('textarea')
+      if (!this.$textarea) throw '没找到textarea'
+      this.$complete = this.$parent.querySelector('.complete')
+      if (!this.$complete) throw '没找到complete'
+      this.$chunk = this.$parent.querySelector('.chunk')
+      if (!this.$chunk) throw '没找到chunk'
+      this.width = this.$parent.clientWidth
+      this.textareaAddEvent()
+      this.closeAddEvent()
+    }
+    textareaAddEvent () {
+      this.$textarea.addEventListener('input', (e) => {
+        let text = e.target.value
+        if (text.indexOf(',') > 0 || text.indexOf('，') > 0) {
+          text = text.substring(0, text.length - 1)
+          if (this.capsules.indexOf(text) >= 0) {
+            alert('有重复值')
+            return
+          }
+          this.capsules.push(text)
+          this.createTag(text, this.capsules.indexOf(text))
+          this.$textarea.value = ''
+        }
+      })
+    }
+    closeAddEvent () {
+      this.$parent.addEventListener('click', (e) => {
+        if (e.target.className == 'close') {
+          let tag = e.target.parentNode
+          let parent = tag.parentNode
+          this.removeTag(parent, tag)
+        }
+      })
+    }
+    createTag (value, index) {
+      let tag = document.createElement('div')
+      tag.innerHTML = `<span>${value}</span><b class="close">x</b>`
+      tag.className = 'tag'
+      tag.setAttribute('data-id', index)
+      this.$chunk.appendChild(tag)
+      this.modifyView('add')
+    }
+    removeTag (parent, tag) {
+      parent.removeChild(tag)
+      this.capsules.splice(tag.dataset['id'], 1)
+      this.modifyView('remove', parent)
+    }
+    // 添加tag，判断是否需要整合，调整textarea位置
+    modifyView (type, parent) {
+      if (type == 'add') {
+        let chunkWidth = this.$chunk.offsetWidth
+        let tag = this.$chunk.lastChild
+        if (chunkWidth >= this.width) {
+          this.$chunk.removeChild(tag)
+          this.mergeTag()
+          this.$chunk.appendChild(tag)
+          chunkWidth = this.$chunk.offsetWidth
+        }
+        if (this.width - chunkWidth < this.minTagWidth) {
+          this.mergeTag()
+        }
+      } else if (type == 'remove') {
+        if (parent.className.indexOf('complete') > 0) {
+          this.mergeTag()
+        }
+      }
+      let chunkWidth = this.$chunk.offsetWidth
+      let chunkHeight = this.$chunk.offsetHeight
+      this.$textarea.style.marginTop = '-' + chunkHeight + 'px'
+      this.$textarea.style.textIndent = chunkWidth + 'px'
+    }
+    // 将chunk整合到complete
+    mergeTag () {
+      let childs = Array.from(this.$chunk.childNodes)
+      childs.forEach(item => {
+        this.$complete.appendChild(item)
+      });
+      this.$chunk.innerHTML = ''
+    }
+    getValues () {
+      return this.capsules
+    }
+  }
+  let myCapsuleIpt = new CapsuleIpt({
+    el: '#capsuleIpt',
+    minTagWidth: 50
+  })
+  $("#btn").click(() => {
+    console.log(myCapsuleIpt.getValues())
+  })
+</script>
+</html>
