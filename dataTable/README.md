@@ -1,5 +1,5 @@
 ## 日期/人员排班表
-项目地址: [查看](https://xluoyu.github.io/myCode/dataTable/index.html){:target="_blank"}
+项目地址: https://xluoyu.github.io/myCode/dataTable/index.html
 
 完整效果
 ![效果](./assets/a1.png)
