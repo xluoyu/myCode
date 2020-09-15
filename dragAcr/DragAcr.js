@@ -64,13 +64,17 @@
             }, timing);
         }
         initCanvas(dom) {
+            let dpr = window.devicePixelRatio;
             this.canvas = document.createElement("canvas");
             this.canvas.setAttribute("id", "dragArc");
-            this.canvas.setAttribute("width", this.width);
-            this.canvas.setAttribute("height", this.width);
+            this.canvas.setAttribute("width", dpr * this.width);
+            this.canvas.setAttribute("height", dpr * this.width);
+            this.canvas.style.width = this.width + 'px'
+            this.canvas.style.height = this.width + 'px'
             dom.innerHTML = '';
             dom.appendChild(this.canvas);
             this.ctx = this.canvas.getContext("2d");
+            this.ctx.scale(dpr, dpr)
             this.isMobile = /Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent);
         }
         //绘图
