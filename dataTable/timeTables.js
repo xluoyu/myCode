@@ -1,7 +1,7 @@
 /*
  * @Author: xluoyu
  * @Date: 2020-05-25 15:51:58
- * @LastEditTime: 2020-09-10 11:09:55
+ * @LastEditTime: 2020-09-18 11:24:42
  * @LastEditors: Please set LastEditors
  * @Description: 日历形式的排班表
  */ 
@@ -11,7 +11,7 @@ function TimeTables (options) {
     }
     this.$root = document.querySelector(options.el)
     this.$date = options.date || new Date()
-    this.$list = options.list || []
+    this.$list = options.data || []
     this.$cb = options.cb
     this.init(this.$date, this.$list)
 }
@@ -19,7 +19,8 @@ TimeTables.prototype = {
     async init (date, list) {
         Promise.all([this.getAllTableHead(date), this.handleList(list)]).then(res => {
             [this.$TableHead, this.$data] = res
-            
+            console.log(this.$TableHead)
+            console.log(this.$data)
         }).catch(err => {
             throw new Error(err)
         })
@@ -74,7 +75,7 @@ TimeTables.prototype = {
         for (let i = 1; i <= length; i++) {
             let curDay = type == 'pre' ? date.getTime() - i * ms : date.getTime() + i * ms
             let day = this.format(new Date(curDay))
-            res.push(this.getWeekDay(day))
+            res.push(this.getWeekDay(day, false))
         }
         return res
     },
