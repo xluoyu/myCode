@@ -87,9 +87,9 @@ export default {
         this.to += this.displayCount
         this.loadData()
       } else {
-          this.form = Math.max(Math.floor(this.$el.scrollTop / this.itemHeight) - this.displayCount * (this.viewNumber - 2), 0)
-          this.to = Math.min(this.form + this.displayCount * this.viewNumber, this.list.length)
-          this.initList()
+        this.form = Math.max(Math.floor(this.$el.scrollTop / this.itemHeight) - this.displayCount * (this.viewNumber - 2), 0)
+        this.to = Math.min(this.form + this.displayCount * this.viewNumber, this.list.length)
+        this.initList()
       }
     }
   },
